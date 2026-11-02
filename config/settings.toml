@@ -1,0 +1,45 @@
+# Geopolitheos newsroom settings. Edit freely; no code changes needed.
+
+[briefing]
+site_name = "Geopolitheos"
+tagline = "A daily briefing on Israel and the Middle East, read in the light of Scripture."
+stories_per_day = 4          # News Scout picks the top N stories
+timezone = "Asia/Jerusalem"  # "today" is computed in this timezone
+max_editor_rounds = 2        # Writer revises at most this many times
+
+[sources]
+# News Scout searches only these domains. Add or remove to match your trust list.
+allowed_domains = [
+  "timesofisrael.com",
+  "jpost.com",
+  "haaretz.com",
+  "ynetnews.com",
+  "i24news.tv",
+  "reuters.com",
+  "apnews.com",
+  "bbc.com",
+  "aljazeera.com",
+  "al-monitor.com",
+  "gov.il",
+  "un.org",
+]
+focus = [
+  "Israel (politics, security, diplomacy, society)",
+  "Gaza, the West Bank and Jerusalem",
+  "Lebanon, Syria, Iran, Jordan, Egypt, the Gulf states, Turkey",
+  "US, EU, Russia and China policy toward the region",
+]
+
+[growth]
+enabled = true
+channels = ["x", "facebook", "newsletter_teaser", "youtube_short_script"]
+
+[publish]
+# "local"     -> write the approved draft to out/<date>/ only (default, safe)
+# "wordpress" -> also create a DRAFT post via the WordPress REST API
+#                (needs WP_URL, WP_USER, WP_APP_PASSWORD env vars)
+target = "local"
+
+[notify]
+# If SLACK_WEBHOOK_URL is set, the Chief of Staff posts the daily summary there.
+slack = true
