@@ -35,3 +35,13 @@ def test_cannot_approve_twice(tmp_path):
     run("approve", "2026-11-03", tmp=tmp_path)
     r = run("approve", "2026-11-03", tmp=tmp_path)
     assert r.returncode != 0
+
+
+def test_blocked_domains_parsed_from_api_error():
+    from agents.llm import blocked_domains
+
+    err = ("Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', "
+           "'message': \"The following domains are not accessible to our user agent: "
+           "['apnews.com', 'bbc.com', 'reuters.com']. Read more: https://support.anthropic.com/x\"}}")
+    assert blocked_domains(err) == {"apnews.com", "bbc.com", "reuters.com"}
+    assert blocked_domains("some other 400") == set()

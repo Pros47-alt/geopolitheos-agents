@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 
 MODEL = os.environ.get("GEO_MODEL", "claude-opus-5-5")
 DRY_RUN = os.environ.get("GEO_DRY_RUN") == "1"
@@ -28,6 +29,37 @@ def _get_client():
 
 class AgentRefused(RuntimeError):
     pass
+
+
+_BLOCKED = re.compile(r"domains are not accessible to our user agent: \[([^\]]*)\]")
+
+
+def blocked_domains(error_text: str) -> set[str]:
+    """Domains named in the API's 'not accessible to our user agent' error."""
+    match = _BLOCKED.search(error_text)
+    return set(re.findall(r"'([^']+)'", match.group(1))) if match else set()
+
+
+def _stream(client, agent: str, messages: list, kwargs: dict):
+    """Stream one request. Some sites block Anthropic's crawler, and the API
+    rejects them in allowed_domains; drop those and retry once."""
+    import anthropic
+
+    try:
+        with client.beta.messages.stream(messages=messages, **kwargs) as stream:
+            return stream.get_final_message()
+    except anthropic.BadRequestError as exc:
+        blocked = blocked_domains(str(exc))
+        tools = kwargs.get("tools") or []
+        if not blocked or not tools or "allowed_domains" not in tools[0]:
+            raise
+        kept = [d for d in tools[0]["allowed_domains"] if d not in blocked]
+        if not kept:
+            raise
+        print(f"[{agent}] Skipping sources that block search: {', '.join(sorted(blocked))}", flush=True)
+        tools[0]["allowed_domains"] = kept
+        with client.beta.messages.stream(messages=messages, **kwargs) as stream:
+            return stream.get_final_message()
 
 
 def ask(
@@ -77,8 +109,7 @@ def ask(
 
     # Web search turns can pause; send the paused turn back to continue it.
     for _ in range(6):
-        with client.beta.messages.stream(messages=messages, **kwargs) as stream:
-            response = stream.get_final_message()
+        response = _stream(client, agent, messages, kwargs)
         if response.stop_reason == "pause_turn":
             messages.append({"role": "assistant", "content": response.content})
             continue
