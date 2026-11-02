@@ -71,7 +71,7 @@ def ask(
     web_search: bool = False,
     allowed_domains: list[str] | None = None,
     json_schema: dict | None = None,
-    max_tokens: int = 32000,
+    max_tokens: int = 64000,
     dry_run_reply: str | dict = "",
 ):
     """Run one agent turn. Returns text, or a dict when json_schema is given."""
