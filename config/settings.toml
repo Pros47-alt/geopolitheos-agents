@@ -9,15 +9,14 @@ max_editor_rounds = 2        # Writer revises at most this many times
 
 [sources]
 # News Scout searches only these domains. Add or remove to match your trust list.
+# Some sites (for example Reuters, AP and BBC) block the search tool. Any blocked
+# domain is skipped automatically and noted in the run log.
 allowed_domains = [
   "timesofisrael.com",
   "jpost.com",
   "haaretz.com",
   "ynetnews.com",
   "i24news.tv",
-  "reuters.com",
-  "apnews.com",
-  "bbc.com",
   "aljazeera.com",
   "al-monitor.com",
   "gov.il",
