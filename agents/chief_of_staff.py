@@ -79,9 +79,14 @@ def run_morning(date: str, settings: dict, out_dir: Path) -> dict:
                                   f"{len(verdict['issues'])} issue(s).")
             if verdict["approved"] or rnd > rounds:
                 break
-            draft = newsroom.writer(date, dossier, notes, house_style, settings,
-                                    previous_draft=draft,
-                                    editor_notes=_format_issues(verdict))
+            try:
+                draft = newsroom.writer(date, dossier, notes, house_style, settings,
+                                        previous_draft=draft,
+                                        editor_notes=_format_issues(verdict))
+            except Exception as exc:
+                # Keep the last good draft and the editor's notes for the human.
+                _log(state, "writer", f"Revision failed ({exc}); keeping draft v{rnd}.")
+                break
             _log(state, "writer", f"Revised draft after round {rnd}.")
 
         growth_md = ""
