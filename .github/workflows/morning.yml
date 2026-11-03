@@ -1,8 +1,11 @@
 name: Morning briefing
 
+# Manual only. This workflow calls the paid Anthropic API, so it has no daily
+# schedule. The live 6pm briefing runs as a Claude scheduled task on the
+# Claude plan instead. To schedule it again, add back:
+#   schedule:
+#     - cron: "0 3 * * *"
 on:
-  schedule:
-    - cron: "0 3 * * *"   # 03:00 UTC = 05:00 or 06:00 in Jerusalem
   workflow_dispatch: {}
 
 jobs:
